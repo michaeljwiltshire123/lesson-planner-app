@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Step 1 - New Lesson</title>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      margin: auto;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 20px;
+      padding: 30px 40px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    h1 {
+      text-align: center;
+      color: #67e8f9;
+      font-size: 2.2rem;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .label-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    label {
+      color: #a5f3fc;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(148, 163, 184, 0.15);
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: background 0.2s, color 0.2s;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .info-icon:hover {
+      background: rgba(148, 163, 184, 0.3);
+      color: #e2e8f0;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #38bdf8;
+      border-radius: 8px;
+      color: white;
+      box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #67e8f9;
+      box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.3);
+    }
+    
+    textarea {
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 8px;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 1.2em;
+        height: 1.2em;
+        accent-color: #06b6d4;
+    }
+    
+    .checkbox-item label {
+        color: #e0f2fe;
+        cursor: pointer;
+    }
+
+    .range-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(15, 23, 42, 0.7);
+        padding: 8px 15px;
+        border-radius: 8px;
+    }
+    
+    input[type="range"] {
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+        cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+        background: #334155;
+        height: 6px;
+        border-radius: 3px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+       -webkit-appearance: none;
+       appearance: none;
+       margin-top: -5px;
+       width: 16px;
+       height: 16px;
+       border-radius: 50%;
+       background-color: #38bdf8;
+       border: 2px solid #0f172a;
+    }
+    
+    .range-value {
+        font-size: 1.2rem;
+        color: #7dd3fc;
+        font-weight: bold;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      background: #06b6d4;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 9999px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 30px;
+    }
+
+    .button:hover:not(:disabled) {
+      background: #0891b2;
+      transform: translateY(-2px);
+    }
+    
+    .button:disabled {
+        background: #52525b;
+        cursor: not-allowed;
+    }
+
+    #confirmationMessage {
+      text-align: center;
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: rgba(22, 163, 74, 0.2);
+      color: #4ade80;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      display: none;
+    }
+    
+    #tooltip {
+        position: absolute;
+        background-color: #334155;
+        color: #e2e8f0;
+        padding: 10px 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        max-width: 250px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        border: 1px solid #475569;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: none; /* So it doesn't interfere with other clicks */
+    }
+
+  </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Start New Lesson</h1>
+        <form id="lessonForm" method="post" action="about:blank" autocomplete="on" novalidate>
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="courseLevel">Course Level</label>
+                    <span class="info-icon" data-tooltip="The academic level of the course (e.g., GCSE, BTEC).">i</span>
+                </div>
+                <input id="courseLevel" name="courseLevel" type="text" placeholder="e.g., BTEC Level 3" />
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="subject">Subject</label>
+                    <span class="info-icon" data-tooltip="The subject area for this lesson (e.g., Media, Physics).">i</span>
+                </div>
+                <input id="subject" name="subject" type="text" placeholder="e.g., Media" />
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="lessonTitle">Lesson Title</label>
+                    <span class="info-icon" data-tooltip="A specific, descriptive title for the lesson.">i</span>
+                </div>
+                <input id="lessonTitle" name="lessonTitle" type="text" placeholder="e.g., Screenwriting" />
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="lessonDuration">Lesson Duration</label>
+                    <span class="info-icon" data-tooltip="The total time allocated for the lesson.">i</span>
+                </div>
+                <input id="lessonDuration" name="lessonDuration" type="text" placeholder="e.g., 45 minutes" />
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label>Resources</label>
+                     <span class="info-icon" data-tooltip="Physical or digital materials needed for the lesson.">i</span>
+                </div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item"><input type="checkbox" id="resourceComputer" name="resourceComputer" checked /><label for="resourceComputer">Computer</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="resourceInternet" name="resourceInternet" checked /><label for="resourceInternet">Internet</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="resourcePenPaper" name="resourcePenPaper" checked /><label for="resourcePenPaper">Pen & Paper</label></div>
+                </div>
+                <input id="moreResources" name="moreResources" type="text" placeholder="Add more resources..." style="margin-top: 10px;" />
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="lessonEssentials">Lesson Essentials</label>
+                    <span class="info-icon" data-tooltip="Core concepts, theories, or skills to be covered.">i</span>
+                </div>
+                <textarea id="lessonEssentials" name="lessonEssentials" placeholder="Save the cat, Robert McKee Story, Hero's Journey, Memory aids..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label>Assessment Preferences</label>
+                </div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="summative" name="summative" checked disabled />
+                        <label for="summative">Summative (always on)</label>
+                        <span class="info-icon" data-tooltip="Evaluates learning at the end of a unit (e.g., final exam).">i</span>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="diagnosticAssessment" name="diagnosticAssessment" checked />
+                        <label for="diagnosticAssessment">Diagnostic</label>
+                        <span class="info-icon" data-tooltip="Assesses prior knowledge before a lesson begins.">i</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="formativeTasks">Formative Tasks</label>
+                    <span class="info-icon" data-tooltip="Tasks to monitor student progress during the lesson.">i</span>
+                </div>
+                <div class="range-container">
+                    <input id="formativeTasks" name="formativeTasks" type="range" min="0" max="5" value="3" />
+                    <div id="formativeValue" class="range-value">3</div>
+                </div>
+            </div>
+
+            <button type="submit" class="button" id="submitButton">Save Lesson</button>
+        </form>
+        <div id="confirmationMessage">✅ Lesson data saved successfully!</div>
+        <div id="tooltip"></div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Element Selections ---
+    const form = document.getElementById('lessonForm');
+    const submitButton = document.getElementById('submitButton');
+    const confirmationMessage = document.getElementById('confirmationMessage');
+    const formativeSlider = document.getElementById('formativeTasks');
+    const formativeValue = document.getElementById('formativeValue');
+    const tooltip = document.getElementById('tooltip');
+    
+    let activeInfoIcon = null;
+
+    // --- Initial State Setup ---
+    formativeValue.textContent = formativeSlider.value;
+
+    // --- Event Listeners ---
+    formativeSlider.addEventListener('input', () => {
+        formativeValue.textContent = formativeSlider.value;
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        submitButton.disabled = true;
+        submitButton.textContent = 'Saving...';
+        
+        const data = {
+            courseLevel: document.getElementById('courseLevel').value.trim(),
+            subject: document.getElementById('subject').value.trim(),
+            lessonTitle: document.getElementById('lessonTitle').value.trim(),
+            lessonDuration: document.getElementById('lessonDuration').value.trim(),
+            resources: {
+                computer: document.getElementById('resourceComputer').checked,
+                internet: document.getElementById('resourceInternet').checked,
+                penPaper: document.getElementById('resourcePenPaper').checked,
+                more: document.getElementById('moreResources').value.trim()
+            },
+            lessonEssentials: document.getElementById('lessonEssentials').value.trim(),
+            assessmentPreferences: {
+                summative: true,
+                diagnostic: document.getElementById('diagnosticAssessment').checked
+            },
+            formativeTasks: formativeSlider.value
+        };
+
+        localStorage.setItem('lessonData', JSON.stringify(data));
+        
+        submitButton.textContent = 'Saved!';
+
+        confirmationMessage.style.display = 'block';
+        setTimeout(() => {
+            confirmationMessage.style.opacity = 1;
+        }, 10);
+    });
+    
+    document.body.addEventListener('click', (e) => {
+        const icon = e.target.closest('.info-icon');
+        
+        if (icon) {
+            if (icon === activeInfoIcon) {
+                hideTooltip();
+                return;
+            }
+            const tooltipText = icon.getAttribute('data-tooltip');
+            showTooltip(icon, tooltipText);
+            activeInfoIcon = icon;
+        } else if (tooltip.style.opacity === '1' && !e.target.closest('.info-icon')) {
+            hideTooltip();
+        }
+    });
+
+    // --- Functions ---
+    function showTooltip(targetElement, text) {
+        tooltip.textContent = text;
+        const rect = targetElement.getBoundingClientRect();
+        
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${rect.left + window.scrollX}px`;
+        tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
+
+        const tooltipRect = tooltip.getBoundingClientRect();
+        if (tooltipRect.right > window.innerWidth - 10) {
+           tooltip.style.left = `${window.innerWidth - tooltipRect.width - 10}px`;
+        }
+
+        setTimeout(() => {
+            tooltip.style.opacity = '1';
+            tooltip.style.transform = 'translateY(0)';
+        }, 10);
+    }
+    
+    function hideTooltip() {
+        tooltip.style.opacity = '0';
+        tooltip.style.transform = 'translateY(5px)';
+        activeInfoIcon = null;
+    }
+});
+</script>
+
+</body>
+</html>

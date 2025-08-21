@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Step 6 - Diagnostic Quiz</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1e293b;
+      color: #e0f2fe;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #0f172a;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 30px #0284c7aa;
+    }
+    .header-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    h1 {
+      text-align: left;
+      color: #38bdf8;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    button#syncBtn {
+      background: #38bdf8;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 9999px;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+      white-space: nowrap;
+    }
+    button#syncBtn:hover {
+      background: #7dd3fc;
+      transform: translateY(-2px);
+    }
+    button#syncBtn:disabled {
+      background: #4b5563;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .instructions {
+      font-size: 1rem;
+      color: #7dd3fc;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .quiz-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .card {
+      background: #0e1726;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px #0284c7aa;
+      transition: box-shadow 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 0 15px #0ea5e9;
+    }
+    .card h3 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #38bdf8;
+    }
+    .card .answer {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin: 10px 0 8px;
+      color: #34d399; /* green for true */
+    }
+    .card .answer.false {
+      color: #f87171; /* red for false */
+    }
+    .card .explanation {
+      font-size: 0.95rem;
+      color: #94a3b8;
+    }
+    label.select-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      padding: 12px 15px;
+      border-radius: 8px;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    label.select-checkbox:hover {
+      background-color: #1e293b;
+      border-color: #38bdf8;
+    }
+    label.select-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+    }
+    button#continueBtn {
+      background: #22c55e;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: white;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+    }
+    button#continueBtn:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+    }
+    button#continueBtn:disabled {
+      background: #4b5563;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .empty-message {
+      text-align: center;
+      padding: 50px 20px;
+      font-size: 1.2rem;
+      color: #94a3b8;
+      background-color: #0e1726;
+      border-radius: 12px;
+    }
+    .empty-message.error {
+        color: #f87171;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-controls">
+      <h1>✅ Step 6: Generate Diagnostic Questions</h1>
+      <button id="syncBtn">Sync with AI ✨</button>
+    </div>
+    <p class="instructions">Click "Sync with AI" to generate 10 questions. Tick the box for each question you want to include, then click "Continue to Export".</p>
+    <div id="quizCards" class="quiz-cards"></div>
+    <div class="footer">
+      <button id="continueBtn" disabled>Continue to Export</button>
+    </div>
+  </div>
+
+  <script>
+    // --- State variables ---
+    let questions = [];
+    let selectedQuestions = new Set();
+    let nextId = 1;
+
+    // --- DOM Elements ---
+    const quizContainer = document.getElementById('quizCards');
+    const continueBtn = document.getElementById('continueBtn');
+    const syncBtn = document.getElementById('syncBtn');
+
+    // --- API Configuration ---
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzyl5Sxko6e1lq-cgaBJyW8k4rUVkAV07nRX9_6k3VUsCv9V2q5bwlyXgtOclwmqXrK/exec';
+
+    /**
+     * Displays a message in the main content area.
+     * @param {string} message The message to display.
+     * @param {boolean} isError Whether the message is an error.
+     */
+    function displayMessage(message, isError = false) {
+      if (quizContainer) {
+        quizContainer.innerHTML = `<p class="empty-message ${isError ? 'error' : ''}">${message}</p>`;
+      }
+      if (continueBtn) {
+        continueBtn.disabled = true;
+      }
+    }
+
+    /**
+     * Displays an error message in the main content area.
+     * @param {string} message The error message to display.
+     */
+    function displayError(message) {
+      displayMessage(message, true);
+    }
+
+    /**
+     * Fetches diagnostic questions from the backend API.
+     * @param {object} lessonData The complete lesson content data.
+     * @returns {Promise<object[] | null>} A promise that resolves to an array of question data, or null on failure.
+     */
+    async function fetchQuestionsFromAPI(lessonData) {
+      try {
+        // Use text/plain to avoid CORS preflight request, which is failing in Google Sites.
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8', // Send as plain text
+          },
+          body: JSON.stringify({ // Stringify the JSON object to send as the text payload
+            type: 'generate_diagnostic_questions',
+            lessonData,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+        
+        // The backend will return a JSON string, so we get it as text first.
+        const responseText = await response.text();
+        // The backend might wrap the response, so we safely parse it.
+        const data = JSON.parse(responseText);
+
+        if (data.debugInfo) {
+          console.log("Backend Debug Info:", data.debugInfo);
+        }
+        if (!data.result || !Array.isArray(data.result) || data.result.length === 0) {
+          throw new Error('Invalid or empty response format from API.');
+        }
+        return data.result;
+      } catch (error) {
+        console.error('Failed to fetch questions:', error);
+        displayError('Oops! We had trouble generating questions. Please check the connection and try again.');
+        return null;
+      }
+    }
+
+    /**
+     * Handles the initial generation of questions from the API.
+     * @param {object} lessonData The lesson content data.
+     */
+    async function generateInitialQuestions(lessonData) {
+      const newQuestionsData = await fetchQuestionsFromAPI(lessonData);
+      if (newQuestionsData) {
+        questions = newQuestionsData.map((q) => ({ ...q, id: nextId++ }));
+        selectedQuestions.clear();
+        renderCards();
+      }
+    }
+
+    /**
+     * Toggles the selection state of a question.
+     * @param {number} id The ID of the question.
+     * @param {boolean} checked The new checked state.
+     */
+    function handleToggleSelection(id, checked) {
+      if (checked) {
+        selectedQuestions.add(id);
+      } else {
+        selectedQuestions.delete(id);
+      }
+      updateContinueButton();
+    }
+
+    /**
+     * Updates the disabled state of the 'Continue' button.
+     */
+    function updateContinueButton() {
+      if (continueBtn) {
+        continueBtn.disabled = selectedQuestions.size === 0;
+      }
+    }
+
+    /**
+     * Renders all question cards to the DOM.
+     */
+    function renderCards() {
+      if (!quizContainer) return;
+
+      quizContainer.innerHTML = '';
+
+      if (questions.length === 0) {
+        const currentMessage = quizContainer.querySelector('.empty-message');
+        if (currentMessage?.textContent?.includes("Click 'Sync with AI'")) {
+            return;
+        }
+        displayMessage('No questions available. Try syncing again to generate new ones.');
+        return;
+      }
+
+      questions.forEach(({ id, question, answer, explanation }) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.id = String(id);
+        const questionId = `question-title-${id}`;
+
+        card.innerHTML = `
+          <h3 id="${questionId}">${question}</h3>
+          <div class="answer ${answer ? '' : 'false'}">Answer: ${answer ? 'True' : 'False'}</div>
+          <div class="explanation">${explanation}</div>
+          <label class="select-checkbox">
+            <input type="checkbox" ${selectedQuestions.has(id) ? 'checked' : ''} aria-labelledby="${questionId}"/>
+            Include this question
+          </label>
+        `;
+        quizContainer.appendChild(card);
+      });
+
+      updateContinueButton();
+    }
+
+    /**
+     * Sets up the main event listeners for the application.
+     */
+    function setupEventListeners() {
+      syncBtn?.addEventListener('click', async () => {
+        syncBtn.disabled = true;
+        displayMessage('🧠 Generating brilliant questions...');
+
+        try {
+          const lessonDataString = localStorage.getItem('lessonData');
+          if (!lessonDataString) {
+            throw new Error('Could not find lesson data. Please ensure the lesson was created correctly before this step.');
+          }
+
+          const lessonData = JSON.parse(lessonDataString);
+          if (!lessonData || !lessonData.lessonTitle) {
+            throw new Error('Lesson data is invalid or missing a title. Please start over.');
+          }
+
+          await generateInitialQuestions(lessonData);
+        } catch (error) {
+          console.error('Sync failed:', error);
+          if (error instanceof SyntaxError) {
+            displayError('Lesson data appears to be corrupted. Please go back and create the lesson again.');
+          } else if (error instanceof Error) {
+            displayError(error.message || 'An unexpected problem occurred. Please try again.');
+          } else {
+            displayError('An unexpected problem occurred. Please try again.');
+          }
+        } finally {
+          if (syncBtn) {
+            syncBtn.disabled = false;
+          }
+        }
+      });
+
+      quizContainer?.addEventListener('change', (event) => {
+        const target = event.target;
+        if (target.tagName === 'INPUT' && target.type === 'checkbox') {
+          const card = target.closest('.card');
+          if (card && card.dataset.id) {
+            const id = Number(card.dataset.id);
+            handleToggleSelection(id, target.checked);
+          }
+        }
+      });
+
+      continueBtn?.addEventListener('click', () => {
+        if (selectedQuestions.size === 0) return;
+        const chosenQuestions = questions.filter(q => selectedQuestions.has(q.id));
+        localStorage.setItem('diagnosticQuestions', JSON.stringify(chosenQuestions));
+        alert(`Continuing with ${chosenQuestions.length} questions saved. These will be integrated into slides as question + answer slides.`);
+      });
+    }
+
+    /**
+     * Main application entry point.
+     */
+    function main() {
+      if (!quizContainer || !continueBtn || !syncBtn) {
+        console.error('Essential DOM elements are missing. App cannot start.');
+        return;
+      }
+      setupEventListeners();
+      displayMessage("Click 'Sync with AI' to generate questions.");
+    }
+
+    main();
+  </script>
+</body>
+</html>
