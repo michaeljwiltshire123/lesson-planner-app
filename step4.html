@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step 4 - Scaffold Slides</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #0f172a, #1e293b);
+      color: white;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      text-align: center;
+      color: #67e8f9;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .slides {
+      display: flex;
+      flex-direction: column;
+      gap: 25px; /* Increased gap to make space for add button */
+    }
+    .slide-wrapper {
+        position: relative;
+    }
+    .slide-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid #38bdf8;
+      border-radius: 15px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .slide-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .slide-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #a5f3fc;
+      flex-grow: 1;
+    }
+    .slide-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .slide-controls button {
+      background: transparent;
+      border: none;
+      color: #38bdf8;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slide-controls button svg {
+        width: 24px;
+        height: 24px;
+        transition: color 0.2s;
+    }
+    .slide-controls button:hover {
+        color: #67e8f9;
+    }
+    .slide-controls button:disabled {
+        color: #4b5563;
+        cursor: not-allowed;
+    }
+    .slide-details {
+      margin-top: 10px;
+      color: #e0f2fe;
+    }
+    .refresh-btn {
+      background: #06b6d4;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 9999px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover {
+      background: #0891b2;
+    }
+    .refresh-btn:disabled {
+      background: #374151;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+    .continue-btn {
+      margin-top: 30px;
+      display: block;
+      width: 100%;
+      background: #22d3ee;
+      color: #0f172a;
+      font-weight: bold;
+      padding: 14px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+    .continue-btn:hover {
+      background: #06b6d4;
+      color: white;
+    }
+    .delete-btn {
+        color: #f472b6;
+    }
+    .delete-btn:hover {
+        color: #ec4899;
+    }
+    .add-slide-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 2px dashed #38bdf8;
+      color: #38bdf8;
+      border-radius: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    .add-slide-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #67e8f9;
+      color: #67e8f9;
+    }
+    .add-slide-between-container {
+      position: absolute;
+      bottom: -27px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 30px;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .slide-wrapper:hover .add-slide-between-container {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .add-slide-between-btn {
+      background: rgba(56, 189, 248, 0.3);
+      border: 1px dashed #38bdf8;
+      color: #38bdf8;
+      border-radius: 9999px;
+      cursor: pointer;
+      padding: 5px 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .add-slide-between-btn:hover {
+      background: rgba(56, 189, 248, 0.5);
+      border-style: solid;
+    }
+    .slide-card.custom-slide .slide-title-input,
+    .slide-card.custom-slide .slide-content-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #38bdf8;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 1rem;
+    }
+    .slide-card.custom-slide .slide-title-input {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    .slide-card.custom-slide .slide-card-header {
+        margin-bottom: 10px;
+    }
+    .slide-card.custom-slide .slide-content-textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    #notification {
+      display:none; 
+      position: fixed; 
+      top: 20px; 
+      right: 20px; 
+      background: #22c55e; 
+      color: white; 
+      padding: 12px 24px; 
+      border-radius: 8px; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      z-index: 9999;
+      transition: all 0.5s;
+    }
+    #notification-close-btn {
+      margin-left: 15px; 
+      background: transparent; 
+      border: none; 
+      color: white; 
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Step 4: Scaffold & Generate Presentation Slides</h1>
+    <button id="generateBtn" class="refresh-btn" style="margin-bottom: 20px;">Call AI to Generate Slides</button>
+
+    <div class="slides" id="slideContainer"></div>
+    <button id="continueBtn" class="continue-btn">Continue ➡️</button>
+
+  </div>
+
+<script>
+// Global state
+let currentSlides = [];
+
+const slideContainer = document.getElementById("slideContainer");
+const generateButton = document.getElementById("generateBtn");
+const continueBtn = document.getElementById("continueBtn");
+
+// ===================================================================================
+// --- ⚙️ CONFIGURATION: IMPORTANT! SET YOUR BACKEND URL HERE ---
+// ===================================================================================
+// Replace the placeholder URL below with your actual deployed Google Apps Script URL.
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyl5Sxko6e1lq-cgaBJyW8k4rUVkAV07nRX9_6k3VUsCv9V2q5bwlyXgtOclwmqXrK/exec';
+// ===================================================================================
+
+
+// --- UTILITY FUNCTIONS ---
+
+function showNotification(message, isError = false) {
+  const notification = document.getElementById("notification");
+  const messageSpan = document.getElementById("notification-message");
+
+  messageSpan.textContent = message;
+  notification.style.backgroundColor = isError ? '#ef4444' : '#22c55e'; // Red for error, green for success
+  notification.style.display = "block";
+
+  setTimeout(() => {
+    notification.style.display = "none";
+  }, 5000);
+}
+
+function saveAndRender() {
+  localStorage.setItem("generatedSlides", JSON.stringify(currentSlides));
+  renderLessonBlocks();
+}
+
+function saveState() {
+  localStorage.setItem("generatedSlides", JSON.stringify(currentSlides));
+}
+
+// --- BACKEND COMMUNICATION ---
+
+/**
+ * Generic function to call the Apps Script backend.
+ * @param {string} type - The 'type' of request (e.g., 'initial_slide_generation').
+ * @param {object} payloadData - An object containing the specific data for the request.
+ * @returns {Promise<any|null>} - A promise that resolves with the 'result' data from the backend, or null if an error occurs.
+ */
+async function callBackend(type, payloadData) {
+    if (SCRIPT_URL === 'YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL_HERE' || !SCRIPT_URL) {
+      const errorMessage = "Configuration Error: The SCRIPT_URL is not set in the HTML file.";
+      console.error(errorMessage);
+      showNotification(errorMessage, true);
+      return null;
+    }
+    
+    try {
+        console.log(`Calling backend with type: ${type}`);
+        console.log('Payload:', payloadData);
+        console.log('Full JSON Payload:', JSON.stringify({ type, ...payloadData }, null, 2));
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({ type, ...payloadData }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('Backend raw response:', data);
+
+        if (data.error) {
+            console.error('Backend Error:', data.error);
+            console.error('Backend Debug Info:', data.debugInfo);
+            const debugMessage = data.debugInfo ? data.debugInfo.join('\n') : 'N/A';
+            showNotification(`Error from backend: ${data.error}`, true);
+            return null;
+        }
+
+        console.log('Backend Debug Info:', data.debugInfo);
+        return data.result;
+    } catch (error) {
+        console.error('Frontend Fetch/Parsing Error:', error);
+        showNotification(`Failed to communicate with the backend. Error: ${error.message}`, true);
+        return null;
+    }
+}
+
+/**
+ * Calls the backend to generate a complete lesson slide deck.
+ * @param {object} lessonData - Object with lesson details.
+ * @param {object} summativeAssessment - The chosen summative assessment object.
+ * @param {Array<object>} selectedFormative - Array of chosen formative assessment objects.
+ * @param {boolean} diagnosticEnabled - True if a diagnostic slide should be included.
+ * @returns {Promise<Array<object>|null>} - A promise that resolves with an array of slide objects, or null on error.
+ */
+async function generateSlidesForLesson(lessonData, summativeAssessment, selectedFormative, diagnosticEnabled) {
+    console.log("Initiating full slide deck generation...");
+    const payloadData = {
+        lessonData,
+        summativeAssessment,
+        selectedFormative,
+        diagnosticEnabled
+    };
+    return await callBackend('initial_slide_generation', payloadData);
+}
+
+// --- CORE LOGIC ---
+
+async function handleGenerateSlides() {
+    generateButton.disabled = true;
+    generateButton.textContent = "Generating lesson...";
+
+    try {
+        // 1. Load data robustly from localStorage using the correct keys
+        const lessonData = JSON.parse(localStorage.getItem('lessonData') || '{}');
+        const summativeAssessment = JSON.parse(localStorage.getItem('SummativeAssessment') || '{}');
+        const selectedFormative = JSON.parse(localStorage.getItem('selectedFormative') || '[]');
+
+        // 2. Ensure diagnosticEnabled is derived correctly from lessonData
+        const diagnosticEnabled = lessonData?.assessmentPreferences?.diagnostic === true;
+
+        // 3. Frontend validation to stop early if critical data is truly missing
+        if (!lessonData || !lessonData.lessonTitle || typeof lessonData.lessonTitle !== 'string' || lessonData.lessonTitle.trim() === '') {
+            showNotification('Missing lesson title. Please ensure Step 1 is completed with a title.', true);
+            console.error('Frontend Validation Error: lessonData or lessonTitle is missing/empty.');
+            return; // Stop execution
+        }
+        
+        // In handleGenerateSlides, right before the validation for summativeAssessment:
+        console.log('DEBUG: Summative Assessment variable content BEFORE validation:', JSON.stringify(summativeAssessment, null, 2));
+
+        if (!summativeAssessment || !summativeAssessment.title || typeof summativeAssessment.title !== 'string' || summativeAssessment.title.trim() === '') {
+            showNotification('Missing summative assessment. Please ensure Step 3 is completed with an assessment.', true);
+            console.error('Frontend Validation Error: summativeAssessment or title is missing/empty.');
+            return; // Stop execution
+        }
+
+        // --- The rest of your handleGenerateSlides function continues here ---
+        console.log('DEBUG: Assembled lessonData:', lessonData);
+        console.log('DEBUG: Assembled summativeAssessment:', summativeAssessment);
+        console.log('DEBUG: Assembled selectedFormative:', selectedFormative);
+        console.log('DEBUG: Assembled diagnosticEnabled Boolean:', diagnosticEnabled);
+        
+        const slides = await generateSlidesForLesson(lessonData, summativeAssessment, selectedFormative, diagnosticEnabled);
+        
+        if (Array.isArray(slides)) {
+            currentSlides = slides;
+            saveAndRender();
+            showNotification("✅ Slides generated successfully!");
+        } else {
+            const errorMessage = slides?.error || "An unknown error occurred during slide generation. The response was not a valid slide array.";
+            console.error("Failed to generate slides. Response was not an array:", slides);
+            showNotification(`Generation Failed: ${errorMessage}`, true);
+        }
+
+    } catch (error) {
+        // This catches errors from JSON.parse (if stored value is invalid), or from callBackend
+        console.error("Lesson generation failed:", error);
+        showNotification(`Failed to generate lesson plan: ${error.message}`, true);
+    } finally {
+        // ALWAYS re-enable the button
+        generateButton.disabled = false;
+        generateButton.textContent = "Call AI to Generate Slides";
+    }
+}
+
+function renderLessonBlocks() {
+  slideContainer.innerHTML = "";
+
+  if (!currentSlides || currentSlides.length === 0) {
+      const initialAddBtn = document.createElement("button");
+      initialAddBtn.className = "add-slide-btn";
+      initialAddBtn.textContent = "+ Add Your First Slide";
+      initialAddBtn.onclick = () => addSlide(0);
+      slideContainer.appendChild(initialAddBtn);
+      return;
+  }
+  
+  currentSlides.forEach((block, index) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "slide-wrapper";
+    
+    const card = document.createElement("div");
+    card.className = "slide-card";
+    
+    if (block.type === 'custom') {
+        card.classList.add('custom-slide');
+    }
+
+    // More robustly check the classification to apply specific border colors
+    const classification = (block.classification || '').toLowerCase();
+    if (classification.includes('formative')) {
+        card.style.borderColor = "#22c55e"; // A pleasant green for formative tasks
+    } else if (classification.includes('summative')) {
+        card.style.borderColor = "#f59e0b"; // A distinct orange for summative assessments
+    } else if (classification.includes('diagnostic')) {
+        card.style.borderColor = "#8b5cf6"; // A cool violet for diagnostic slides
+    }
+
+    const header = document.createElement("div");
+    header.className = "slide-card-header";
+
+    if (block.type === 'custom') {
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.placeholder = "Enter slide title...";
+        titleInput.className = "slide-title-input";
+        titleInput.value = block.title || "";
+        titleInput.oninput = (e) => {
+            currentSlides[index].title = e.target.value;
+            saveState();
+        };
+        header.appendChild(titleInput);
+    } else {
+        const title = document.createElement("div");
+        title.className = "slide-title";
+        title.textContent = block.title;
+        header.appendChild(title);
+    }
+
+    const controls = document.createElement("div");
+    controls.className = "slide-controls";
+    
+    const upBtn = document.createElement("button");
+    upBtn.setAttribute('aria-label', 'Move slide up');
+    upBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>`;
+    upBtn.disabled = index === 0;
+    upBtn.onclick = () => moveSlide(index, index - 1);
+    controls.appendChild(upBtn);
+    
+    const downBtn = document.createElement("button");
+    downBtn.setAttribute('aria-label', 'Move slide down');
+    downBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>`;
+    downBtn.disabled = index === currentSlides.length - 1;
+    downBtn.onclick = () => moveSlide(index, index + 1);
+    controls.appendChild(downBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.setAttribute('aria-label', 'Delete slide');
+    deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
+    deleteBtn.onclick = () => deleteSlide(index);
+    controls.appendChild(deleteBtn);
+
+    header.appendChild(controls);
+    card.appendChild(header);
+
+    if (block.type === 'custom') {
+        const contentTextarea = document.createElement("textarea");
+        contentTextarea.placeholder = "Enter slide description...";
+        contentTextarea.className = "slide-content-textarea";
+        contentTextarea.value = block.content || "";
+        contentTextarea.oninput = (e) => {
+            currentSlides[index].content = e.target.value;
+            saveState();
+        };
+        card.appendChild(contentTextarea);
+    } else {
+        const content = document.createElement("div");
+        content.className = "slide-details";
+        content.textContent = block.content || "";
+        card.appendChild(content);
+    }
+    
+    wrapper.appendChild(card);
+
+    const addBetweenContainer = document.createElement('div');
+    addBetweenContainer.className = 'add-slide-between-container';
+    const addBetweenBtn = document.createElement('button');
+    addBetweenBtn.className = 'add-slide-between-btn';
+    addBetweenBtn.textContent = '+ Add Slide Here';
+    addBetweenBtn.onclick = () => addSlide(index + 1);
+    addBetweenContainer.appendChild(addBetweenBtn);
+    wrapper.appendChild(addBetweenContainer);
+
+    slideContainer.appendChild(wrapper);
+  });
+}
+
+function addSlide(index) {
+  const newSlide = { 
+      title: "", 
+      content: "", 
+      type: 'custom'
+  };
+  currentSlides.splice(index, 0, newSlide);
+  saveAndRender();
+
+  // Auto-focus the new slide's title input for better UX
+  const newSlideWrapper = slideContainer.children[index];
+  if (newSlideWrapper) {
+      const titleInput = newSlideWrapper.querySelector('.slide-title-input');
+      if (titleInput) {
+          titleInput.focus();
+      }
+  }
+}
+
+function deleteSlide(index) {
+    if (confirm("Are you sure you want to delete this slide?")) {
+        currentSlides.splice(index, 1);
+        saveAndRender();
+    }
+}
+
+function moveSlide(fromIndex, toIndex) {
+  const item = currentSlides.splice(fromIndex, 1)[0];
+  currentSlides.splice(toIndex, 0, item);
+  saveAndRender();
+}
+
+function handleContinue() {
+    const incompleteSlides = currentSlides.filter(
+        slide => slide.type === 'custom' && (!slide.title.trim() || !slide.content.trim())
+    );
+
+    if (incompleteSlides.length > 0) {
+        showNotification("Please fill in the title and description for all custom-added slides.", true);
+        return;
+    }
+    
+    if(currentSlides.length === 0) {
+        showNotification("Please generate or add at least one slide.", true);
+        return;
+    }
+
+    saveState();
+    showNotification("✅ All slides saved! You can proceed.");
+    // Placeholder for actual navigation to next step
+    // window.location.href = '/next-step.html';
+}
+
+function init() {
+    generateButton.addEventListener("click", handleGenerateSlides);
+    continueBtn.addEventListener("click", handleContinue);
+    document.getElementById('notification-close-btn').addEventListener('click', () => {
+        document.getElementById('notification').style.display = 'none';
+    });
+
+    try {
+        const storedSlides = localStorage.getItem("generatedSlides");
+        if (storedSlides) {
+            currentSlides = JSON.parse(storedSlides);
+        }
+    } catch (e) {
+        console.error("Failed to parse slides from localStorage", e);
+        currentSlides = [];
+        localStorage.removeItem("generatedSlides");
+    }
+    
+    renderLessonBlocks();
+}
+
+init();
+</script>
+
+    <div id="notification" role="alert" aria-live="polite">
+      <span id="notification-message"></span>
+      <button id="notification-close-btn" aria-label="Close notification">×</button>
+    </div>
+
+  </body>
+</html>
